@@ -36,8 +36,7 @@ jobs:
             for i in $(seq 1 30); do curl -fsS -o /dev/null "http://127.0.0.1:$port/" && break; sleep 1; done
           done
 
-      - uses: WillSmithTE/leboost-pr-checks@v1
+      - uses: usero-feedback/pr-checks@v0
         with:
           head-url: http://127.0.0.1:8002
           base-url: http://127.0.0.1:8001
-          leboost-key: ${{ secrets.LEBOOST_KEY }}
