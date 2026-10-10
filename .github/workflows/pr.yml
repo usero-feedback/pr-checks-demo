@@ -1,0 +1,43 @@
+name: Web vitals
+
+# A static site needs no preview host: serve main's build and the PR's build inside the job and compare them.
+# Throttling (Slow 4G, 4x CPU) is applied in the browser, so localhost still loads like a phone on a mobile network.
+on:
+  pull_request:
+
+concurrency:
+  group: web-vitals-${{ github.event.number }}
+  cancel-in-progress: true
+
+jobs:
+  web-vitals:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: base
+      - name: Check out this PR
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: head
+
+      - name: Serve both builds
+        run: |
+          nohup python3 -m http.server 8001 --bind 127.0.0.1 --directory base/site > base.log 2>&1 &
+          nohup python3 -m http.server 8002 --bind 127.0.0.1 --directory head/site > head.log 2>&1 &
+          for port in 8001 8002; do
+            for i in $(seq 1 30); do curl -fsS -o /dev/null "http://127.0.0.1:$port/" && break; sleep 1; done
+          done
+
+      - uses: WillSmithTE/leboost-pr-checks@main
+        with:
+          head-url: http://127.0.0.1:8002
+          base-url: http://127.0.0.1:8001
+          leboost-key: ${{ secrets.LEBOOST_KEY }}
