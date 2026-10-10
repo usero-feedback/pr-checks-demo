@@ -18,12 +18,12 @@ jobs:
       pull-requests: write
     steps:
       - name: Check out main
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.base.sha }}
           path: base
       - name: Check out this PR
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           path: head
@@ -36,7 +36,7 @@ jobs:
             for i in $(seq 1 30); do curl -fsS -o /dev/null "http://127.0.0.1:$port/" && break; sleep 1; done
           done
 
-      - uses: WillSmithTE/leboost-pr-checks@main
+      - uses: WillSmithTE/leboost-pr-checks@v1
         with:
           head-url: http://127.0.0.1:8002
           base-url: http://127.0.0.1:8001
