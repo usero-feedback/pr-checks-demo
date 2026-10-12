@@ -16,6 +16,9 @@ class Handler(SimpleHTTPRequestHandler):
 
     def do_GET(self):
         self.started = time.perf_counter()
+        if self.is_page():
+            # Stands in for a slow database query on every page.
+            time.sleep(0.3)
         super().do_GET()
 
     def end_headers(self):
